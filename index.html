@@ -1,0 +1,196 @@
+<html>
+  <head>
+    <title>SOCMINT. TikTok Timestamps - Date Extractor for Tik Tok video creation</title>
+    <link rel="icon" href="images/tiktok.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="images/tiktok.ico" type="image/x-icon" />	
+	  
+	<meta charset="UTF-8">
+	<meta name="languageCode" content="en"/>
+	<meta name="countryCode" content="pe"/>
+	<meta name="searchTitle" content="Get the date of creation of TikTok videos"/>
+	<meta name="description" content="SOCMINT tool that facilitates the creation date of Tiktok videos. It also works with videos that have been deleted."/>
+	<meta property="og:title" content="Tiktok Timestamps">
+	<meta property="og:description" content="Get the date of creation of TikTok videos">
+	<meta property="og:image" content="/">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta name="keywords" content="osint, geoint, imint, tiktok, humint, socmint, Threat intelligence, investigar en internet, investigación, inteligencia, ciberinteligencia, analista, investigar correos, manuel travezaño, manuelbot, manuelbot59, telefono osint, research, cyberint, osint perú, manuel osint, trave osint, ciber" />
+	<meta name="author" content="manuel travezaño, manuelbot59, travezaño" />
+	<meta name="robots" content="index, follow"/>	  
+    <style>
+      body {
+        margin: 1em;
+        font-family: "Helvetica", Arial, sans-serif;
+        font-size: 18px;
+      }
+      button, input {
+          font-size: 16px;
+      }
+      .form {
+          margin-bottom: 1em;
+      }
+      .timezone-output {
+          margin-top: 1em;
+          padding: 0.5em;
+          border-top: 1px solid #ccc;
+      }
+      .timezone-output p {
+          margin: 0.5em 0;
+      }
+    </style>
+  </head>
+  <body>
+
+<script>
+    // Extrae el ID del video usando un grupo de captura en lugar de lookbehind
+      function getVidId() {
+        const tiktokUrl = document.querySelector("#url").value;
+        // This regex should be safe as "Only letters, numbers, underscores, or periods are allowed" in TikTok usernames.
+        const regex = /(?<=\/video\/)(.*?)(?=$|[^0-9])/;
+        const vidId = regex.exec(tiktokUrl)[0];
+        return vidId;
+      }
+    // Convierte el ID del video a un timestamp Unix tomando los primeros 31 bits
+      function extractUnixTimestamp(vidId) {
+        // BigInt needed as we need to treat vidId as 64 bit decimal. This reduces browser support.
+        const asBinary = BigInt(vidId).toString(2);
+        const first31Chars = asBinary.slice(0, 31);
+        const timestamp = parseInt(first31Chars, 2);
+        return timestamp;
+      }
+
+       // Convierte el timestamp Unix a la fecha en la zona horaria local
+      function unixTimestampToHumanDate(timestamp) {
+        const milliseconds = timestamp * 1000;
+        const dateObject = new Date(milliseconds);
+        const humanDateFormat = dateObject.toUTCString() + " (UTC)";
+        return humanDateFormat;
+      }
+
+      function getDate() {
+        const vidId = getVidId();
+        const unixTimestamp = extractUnixTimestamp(vidId);
+        const humanDateFormat = unixTimestampToHumanDate(unixTimestamp);
+        document.querySelector("#date").textContent = humanDateFormat;
+      }
+
+      function clearUrlField() { 
+        document.querySelector("#url").value = "";
+        document.querySelector("#url").focus();
+      }
+    </script>
+	<img src="./images/tiktok-timestamps.jpg" width="685" height="285" alt="Timestamp TikTok"/><br>    
+	  
+<h2>Get the date of creation of TikTok videos</h2>
+	  <ul> <li>Compatible even with deleted videos.</li>
+		   <li>Use a web browser to copy the video URL.</li>
+		   <li>Does not work with URLs generated from mobile applications (Android/iPhone).</li>
+	  </ul>
+  <br>
+    <div class="form">
+      <label for="url">Enter URL: </label>
+      <input type="text" id="url" name="url" />
+      <button onclick="getDate()">Get publication date</button>
+      <button onclick="clearUrlField()">Clear URL</button>
+    </div>
+    <br>
+   <div class="output">
+      <span id="label"><strong>UTC Time Zone:</strong> </span>
+      <span id="date"></span>
+<br>
+    </div>
+
+    <!-- Nueva sección: Muestra la fecha en zona horaria local -->
+    <div class="output">
+      <br>
+      <span id="localLabel"><strong>Your time zone (<span id="timezone"></span>): </strong> </span>
+      <span id="localDate"></span>
+    </div>
+
+    <script>
+      // Función que calcula el offset UTC para una fecha dada.
+      function getUTCOffset(date) {
+        const offsetMinutes = date.getTimezoneOffset();
+        const sign = offsetMinutes > 0 ? '-' : '+';
+        const absOffset = Math.abs(offsetMinutes);
+        const hours = Math.floor(absOffset / 60);
+        const minutes = absOffset % 60;
+        let offsetString = "UTC" + sign + hours;
+        if (minutes !== 0) {
+          offsetString += ":" + minutes.toString().padStart(2, '0');
+        }
+        return offsetString;
+      }
+
+      // Función para actualizar el campo de la zona horaria local basándose en la fecha UTC mostrada.
+      function updateLocalTime() {
+        let utcText = document.getElementById("date").textContent;
+        // Eliminar " (UTC)" del final si existe
+        if (utcText.endsWith(" (UTC)")) {
+          utcText = utcText.slice(0, -6);
+        }
+        // Parsear la cadena UTC a un objeto Date.
+        const dateObject = new Date(utcText);
+        const localDateString = dateObject.toLocaleString();
+        const offset = getUTCOffset(dateObject);
+        document.getElementById("localDate").textContent = localDateString + " (" + offset + ")";
+      }
+
+      // Observador para actualizar automáticamente la fecha local cuando cambie el contenido de "#date"
+      const target = document.getElementById("date");
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          updateLocalTime();
+        });
+      });
+      observer.observe(target, { childList: true, subtree: true });
+    </script>
+
+<br><br>
+<strong>NOTE:</strong>
+  This repository has been modified from the original script: 
+  <a href="https://github.com/bellingcat/tiktok-timestamp" target="_blank">TikTok Timestamp (UTC-0)</a>.
+
+<h4>Follow me:</h4>
+	  <div class="social-links">
+  <a href="https://manuelbot59.github.io/" target="_blank">
+    <img src="https://manuelbot59.github.io/images/ManuelBot59.png" alt="ManuelBot59 en Twitter" style="width:40px;height:40px;vertical-align:middle;margin-right:8px;">My official website
+  </a>
+  <br>
+	
+</div>
+<div class="social-links">
+  <a href="https://twitter.com/ManuelBot59" target="_blank">
+    <img src="./images/x.png" alt="ManuelBot59 en Twitter" style="width:40px;height:40px;vertical-align:middle;margin-right:8px;">X (Twitter)
+  </a>
+  <br>
+	
+</div>
+
+<p>
+  Connect with me and discover the power of Open Source INTelligence <strong>(OSINT)</strong> and Social Media INTelligence <strong>(SOCMINT)</strong> to make the most of the amount exposed on the internet and create or produce intelligence.
+</p>
+
+    <script>
+        function detectTimezone() {
+            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const offset = new Date().getTimezoneOffset();
+            const offsetHours = Math.abs(offset / 60);
+            const offsetSign = offset > 0 ? "-" : "+";
+            const formattedOffset = `UTC${offsetSign}${offsetHours}`;
+            document.getElementById("timezone").innerText = `${formattedOffset} (${timeZone})`;
+        }
+
+        function convertTimezone() {
+            const utcDate = document.getElementById("date").innerText;
+            if (!utcDate) return;
+            
+            const dateObject = new Date(utcDate);
+            const options = { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            
+            document.getElementById("localtime").innerText = new Intl.DateTimeFormat('es-ES', options).format(dateObject);
+        }
+
+        window.onload = detectTimezone;
+    </script>
+    </body>
+</html>
