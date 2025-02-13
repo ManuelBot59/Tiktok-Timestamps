@@ -1,7 +1,11 @@
 # Get the date of creation of TikTok videos
 
-https://manuelbot59.github.io/Tiktok-Timestamps
-
+<div align="center">
+  https://manuelbot59.github.io/Tiktok-Timestamps
+<br> <br>
+  <img src="/images/tiktok-timestamps.jpg" width="600" height="300"/>
+</div>
+<br>
 SOCMINT tool that facilitates the creation date of Tiktok videos. It also works with videos that have been deleted. 
 
 - Use a web browser installed from your computer to get the result.
