@@ -11,6 +11,5 @@ SOCMINT tool that facilitates the creation date of Tiktok videos. It also works 
 - Use a web browser installed from your computer to get the result.
 - Does not work with links generated from the TikTok App installed on Android or Iphone!
 
-NOTA:
-
+NOTe:
 This repository has been modified from the original script: <a href="https://github.com/bellingcat/tiktok-timestamp" target="_blank">tiktok-timestamp</a> <br>
