@@ -9,4 +9,4 @@ SOCMINT tool that facilitates the creation date of Tiktok videos. It also works 
 
 NOTA:
 
-This repository has been modified from the original script:<a href="https://github.com/bellingcat/tiktok-timestamp" target="_blank">tiktok-timestamp</a> <br>
+This repository has been modified from the original script: <a href="https://github.com/bellingcat/tiktok-timestamp" target="_blank">tiktok-timestamp</a> <br>
